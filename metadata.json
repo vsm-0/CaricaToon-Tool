@@ -1,0 +1,11 @@
+{
+  "name": "CaricaToon AI",
+  "description": "Transform your photos into adorable Indian-style caricatures automatically using AI.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "AI Image Generation",
+    "Computer Vision"
+  ]
+}

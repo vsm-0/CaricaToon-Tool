@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Arial Black", "Inter", sans-serif;
+  
+  --color-brand-bg: #FAFAF9;
+  --color-brand-ink: #0C0C0C;
+  --color-brand-accent: #FF5C00;
+  --color-brand-accent-soft: #FFE5D9;
+}
+
+body {
+  @apply bg-brand-bg text-brand-ink font-sans antialiased;
+}
+
+.brutalist-border {
+  @apply border-2 border-brand-ink;
+}
+
+.brutalist-shadow {
+  box-shadow: 12px 12px 0px #FF5C00;
+}
+
+.caricature-frame {
+  @apply relative p-4 bg-white border-2 border-brand-ink;
+  box-shadow: 20px 20px 0px #FF5C00;
+}
+
+.btn-brutal {
+  @apply bg-brand-ink text-white p-5 font-display text-lg uppercase cursor-pointer transition-transform active:scale-95;
+}
+
+.nav-links {
+  @apply flex gap-8 font-bold text-sm uppercase tracking-wider;
+}
