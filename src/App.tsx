@@ -40,7 +40,14 @@ export default function App() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [activeStyle, setActiveStyle] = useState("funny");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const styles = [
+    { id: "funny", name: "Funny Narrative", description: "Humorous storytelling with props", icon: <Sparkles className="w-4 h-4" /> },
+    { id: "sketch", name: "Pro Sketch", description: "Detailed marker & ink shading", icon: <Paintbrush className="w-4 h-4" /> },
+    { id: "minimal", name: "Minimalist", description: "Clean lines & bold outlines", icon: <User className="w-4 h-4" /> }
+  ];
 
   // Initialize Gemini in frontend
   // Prioritize VITE_ prefix for local/VSCode use, fallback to process.env for Cloud environment
@@ -208,12 +215,18 @@ export default function App() {
       });
 
       // Optimized performance parameters for faster generation
+      const stylePrompts: Record<string, string> = {
+        funny: "Masterpiece funny storytelling caricature. Style: Hand-drawn marker art, bold ink outlines, watercolor digital fills. Proportions: Large exaggerated heads, small bodies. Likeness: Strictly maintain facial shape, hair, and distinct features from the photo. Scenario: Funny characteristic pose. High quality, 4k.",
+        sketch: "Professional studio caricature sketch. Style: Intricate charcoal and marker shading, fine line work, classic caricature distortion. Likeness: High-fidelity facial portraiture with exaggerated character. White paper texture background, artistic cross-hatching.",
+        minimal: "Minimalist modern caricature sticker style. Style: Bold vector-like outlines, flat vibrant colors, clean sans-serif vibe. Likeness: Simplified but recognizable facial features. High contrast, adorable chibi-minimalism."
+      };
+
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash-image",
         contents: {
           parts: [
             { inlineData: { data: base64, mimeType: uploadedFile.type } },
-            { text: "Masterpiece funny storytelling caricature. Style: Hand-drawn marker art, bold ink outlines, watercolor digital fills. Proportions: Large exaggerated heads, small bodies. Likeness: Strictly maintain facial shape, hair, and distinct features from the photo. Scenario: Funny characteristic pose. High quality, 4k." }
+            { text: stylePrompts[activeStyle] || stylePrompts.funny }
           ],
         },
         config: {
@@ -348,6 +361,38 @@ export default function App() {
               onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
             />
 
+            {/* Style Selection */}
+            <div className="mb-2">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-4">
+                Creative Style Studio
+              </label>
+              <div className="grid grid-cols-1 gap-2">
+                {styles.map((style) => (
+                  <button
+                    key={style.id}
+                    onClick={() => setActiveStyle(style.id)}
+                    className={`p-4 border-2 flex items-center gap-4 transition-all text-left ${
+                      activeStyle === style.id 
+                        ? "border-brand-ink bg-neutral-100 shadow-[4px_4px_0px_#0C0C0C]" 
+                        : "border-neutral-200 hover:border-neutral-300"
+                    }`}
+                  >
+                    <div className={`p-2 rounded-full ${activeStyle === style.id ? 'bg-brand-accent text-white' : 'bg-neutral-100 text-neutral-400'}`}>
+                      {style.icon}
+                    </div>
+                    <div>
+                      <div className="text-sm font-display uppercase tracking-tight leading-none mb-1">
+                        {style.name}
+                      </div>
+                      <div className="text-[10px] text-neutral-500 font-medium tracking-normal">
+                        {style.description}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {uploadedImage && !loading && !caricature && (
               <motion.button 
                 initial={{ scale: 0.95, opacity: 0 }}
@@ -468,6 +513,38 @@ export default function App() {
                     New Photo
                   </button>
                 </div>
+
+                {/* Comparison Gallery */}
+                {history.length > 1 && (
+                  <div className="mt-20 w-full max-w-2xl border-t-2 border-brand-ink pt-8">
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="font-display uppercase text-xl md:text-2xl tracking-tight leading-none italic">
+                        Studio Comparison Gallery
+                      </h3>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                        {history.length} Variations Generated
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
+                      {history.map((src, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            setHistoryIndex(index);
+                            setCaricature(src);
+                          }}
+                          className={`aspect-square border-2 overflow-hidden transition-all ${
+                            historyIndex === index 
+                              ? "border-brand-accent scale-105 shadow-lg z-10" 
+                              : "border-brand-ink opacity-60 hover:opacity-100"
+                          }`}
+                        >
+                          <img src={src} alt="Variation" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
